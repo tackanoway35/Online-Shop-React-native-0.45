@@ -7,7 +7,6 @@ import { TabNavigator } from "react-navigation";
 import renderIf from 'render-if';
 
 import global from '../../Services/global';
-import { View } from 'react-native';
 import {
   Button,
   Text,
@@ -22,7 +21,7 @@ import {
 export default (MainTab = TabNavigator(
   {
     Home: { screen: Home },
-    Cart: { screen: props => <Cart {...props} name='thanhte'/> },
+    Cart: { screen: Cart },
     Search: { screen: Search },
     Contact: { screen: Contact }
   },

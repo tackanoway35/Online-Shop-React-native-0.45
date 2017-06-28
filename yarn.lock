@@ -1460,6 +1460,10 @@ clamp@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/clamp/-/clamp-1.0.1.tgz#66a0e64011816e37196828fdc8c8c147312c8634"
 
+cldrjs@^0.4.8:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/cldrjs/-/cldrjs-0.4.8.tgz#3b994c464d2a32b5aca7c5de17a60a87e45dc4f9"
+
 cli-cursor@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/cli-cursor/-/cli-cursor-1.0.2.tgz#64da3f7d56a54412e59794bd62dc35295e8f2987"
@@ -2439,6 +2443,10 @@ global@^4.3.0:
   dependencies:
     min-document "^2.19.0"
     process "~0.5.1"
+
+"globalize@github:joshswan/globalize":
+  version "1.1.1"
+  resolved "https://codeload.github.com/joshswan/globalize/tar.gz/1e0466dcba692e3a7674e40a43d23f160f4f4bf4"
 
 globals@^9.0.0:
   version "9.18.0"
@@ -3686,7 +3694,7 @@ mkpath@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/mkpath/-/mkpath-0.1.0.tgz#7554a6f8d871834cc97b5462b122c4c124d6de91"
 
-moment@2.x.x, moment@^2.10.6:
+moment@2.x.x, moment@^2.10.6, moment@^2.18.1:
   version "2.18.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
 
@@ -4316,6 +4324,14 @@ react-native-easy-grid@0.1.7:
   resolved "https://github.com/callstack-io/react-native-fbads/tarball/v4.1.0#e836ed7f4502593d4a4757f27cdfa0ffef4dc729"
   dependencies:
     eventemitter3 "^2.0.2"
+
+react-native-globalize@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-globalize/-/react-native-globalize-1.1.0.tgz#20db78e87bf85fb91e3d38da2e5d7ae98ed15020"
+  dependencies:
+    cldrjs "^0.4.8"
+    globalize joshswan/globalize
+    moment "^2.18.1"
 
 react-native-keyboard-aware-scroll-view@0.2.9:
   version "0.2.9"

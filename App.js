@@ -3,6 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Font } from 'expo';
 import Expo from 'expo';
 import MainRoute from './src/Components/Main/index';
+
+import { FormattedWrapper } from 'react-native-globalize';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -28,7 +31,10 @@ export default class App extends React.Component {
       return <Expo.AppLoading />
     }
     return (
-      <MainRoute />
+      <FormattedWrapper locale='vi' currency='VNĐ'>
+        <MainRoute />
+      </FormattedWrapper>
+
     );
   }
 }

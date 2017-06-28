@@ -6,7 +6,7 @@ import ProductDetail from '../ProductDetail/ProductDetail';
 import ListProduct from '../ListProduct/ListProduct';
 
 export default (HomeNav = StackNavigator({
-    HomeView : { screen : Home},
+    HomeView : { screen : Home },
     ProductDetail : { screen : ProductDetail },
     ListProduct : { screen : ListProduct }
 }));
