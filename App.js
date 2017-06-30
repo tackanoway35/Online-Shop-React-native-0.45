@@ -27,6 +27,8 @@ export default class App extends React.Component {
   }
 
   render() {
+    //Hide all warning
+    console.disableYellowBox = true;
     if (!this.state.isReady) {
       return <Expo.AppLoading />
     }

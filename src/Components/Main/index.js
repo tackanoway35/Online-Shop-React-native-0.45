@@ -15,6 +15,8 @@ import Contact from './Contact/Contact';
 import renderIf from 'render-if';
 
 import global from '../../Services/global';
+import saveCart from '../../Services/saveCart';
+import getCart from '../../Services/getCart';
 //Stack Navigator
 import Home from './Home/Home';
 import ListProduct from './ListProduct/ListProduct';
@@ -43,12 +45,11 @@ export default class MenuNavigator extends React.Component {
   }
 
   addProductToCart(product) {
-    console.log('addProduct successfull');
     this.setState({
-      cartArray: this.state.cartArray.concat({product : product, quantity : 1})
+      cartArray: this.state.cartArray.concat({ product: product, quantity: 1 })
     }, () => {
-      alert("Product is added to cart");
-    })
+      saveCart(this.state.cartArray);
+    });
   }
 
   componentDidMount() {
@@ -63,7 +64,14 @@ export default class MenuNavigator extends React.Component {
           products: products
         });
       })
-      .catch(e => console.log(e))
+      .catch(e => console.log(e));
+    //Get Carts from local
+    getCart().then(cartsJson => JSON.parse(cartsJson))
+    .then(carts => {
+      this.setState({
+        cartArray : carts
+      })
+    })
   }
 
   render() {
@@ -77,10 +85,18 @@ export default class MenuNavigator extends React.Component {
           />,
           headerMode: 'screen',
           navigationOptions: {
-            header : null
+            header: null
           }
         },
-        ProductDetail: { screen: ProductDetail },
+        ProductDetail: {
+          screen: props => <ProductDetail {...props}
+            addProductToCart={this.addProductToCart.bind(this)}
+          />,
+          headerMode: 'screen',
+          navigationOptions: {
+            header: null
+          }
+        },
         ListProduct: { screen: ListProduct }
       }
     );
@@ -89,9 +105,9 @@ export default class MenuNavigator extends React.Component {
     const MainTab = TabNavigator(
       {
         Home: { screen: HomeStack },
-        Cart: { 
-          screen: props => <Cart {...props} 
-            cartArray = {this.state.cartArray}
+        Cart: {
+          screen: props => <Cart {...props}
+            cartArray={this.state.cartArray}
           />
         },
         Search: { screen: Search },

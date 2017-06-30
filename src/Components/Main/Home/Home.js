@@ -36,8 +36,6 @@ export default class Home extends React.Component {
 
   componentDidMount() {
     //Get Prop and setState categories and products
-    console.log('Categories and Product');
-    console.log(this.props);
     const { categories, topProducts } = this.props;
     if (categories && topProducts) {
       this.setState({

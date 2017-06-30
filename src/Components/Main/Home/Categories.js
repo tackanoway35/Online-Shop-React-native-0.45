@@ -46,7 +46,6 @@ export default class Categories extends React.Component {
             this.setState({
                 visibleSwiper: true
             });
-
         }, 100);
     }
 
