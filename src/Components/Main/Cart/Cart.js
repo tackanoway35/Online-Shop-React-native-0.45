@@ -1,6 +1,6 @@
 import React from "react";
 // import { StatusBar } from "react-native";
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { FormattedNumber } from 'react-native-globalize';
 
 import {
@@ -32,6 +32,12 @@ export default class Cart extends React.Component {
     // global.addProductToCart = this.addProductToCart.bind(this);
   }
 
+  deleteThisProduct(rowID)
+  {
+    //Call function deleteProductFromCart from Home page
+    this.props.deleteProductFromCart(rowID);
+  }
+
   render() {
     const {navigate} = this.props.navigation;
     //Server
@@ -61,10 +67,9 @@ export default class Cart extends React.Component {
           <Right />
         </Header>
         <Content padder >
-          
           <List
             dataArray={this.props.cartArray}
-            renderRow={(item) => (
+            renderRow={(item, sectionID, rowID) => (
               <ListItem style={ StyleSheet.flatten(listItemWrapper)}>
                 <Thumbnail square style={StyleSheet.flatten(image)} source={{uri : server + item.product.image}} />
                 <Body style={StyleSheet.flatten(listItemBody)}>
@@ -73,9 +78,12 @@ export default class Cart extends React.Component {
                       <Text>{item.product.title}</Text>
                     </View>
                     
-                    <View style={wrapperIconClose}>
+                    <TouchableOpacity 
+                      onPress = {() => this.deleteThisProduct(rowID)}
+                      style={wrapperIconClose}
+                    >
                       <Icon name="close" style={StyleSheet.flatten(iconClose)} />
-                    </View>
+                    </TouchableOpacity>
 
                   </View>
                   <View style={row2}>
@@ -92,9 +100,12 @@ export default class Cart extends React.Component {
                       <Text>{item.quantity}</Text>
                       <Icon name="add" />
                     </View>
-                    <View style={row3column2}>
+                    <TouchableOpacity 
+                      onPress={() => this.showProductDetail(item)}
+                      style={row3column2}
+                    >
                       <Text style={StyleSheet.flatten(textShowDetail)}>SHOW DETAILS</Text>
-                    </View>
+                    </TouchableOpacity>
                   </View>
                 </Body>
               </ListItem>

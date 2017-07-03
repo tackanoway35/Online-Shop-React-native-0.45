@@ -54,7 +54,6 @@ export default class ProductDetail extends Component {
     }
 
     addThisProductToCart() {
-        // global.addProductToCart(this.state.productInformation);
         this.props.addProductToCart(this.state.productInformation);
     }
 

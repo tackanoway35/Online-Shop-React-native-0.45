@@ -48,8 +48,22 @@ export default class MenuNavigator extends React.Component {
     this.setState({
       cartArray: this.state.cartArray.concat({ product: product, quantity: 1 })
     }, () => {
-      saveCart(this.state.cartArray);
+      saveCart(this.state.cartArray, 'create');
     });
+  }
+
+  deleteProductFromCart(cartIndex)
+  {
+    this.setState({
+      cartArray : this.state.cartArray.filter((cartArray, index) => index != cartIndex)
+    }, () => {
+      saveCart(this.state.cartArray, 'delete');
+    });
+  }
+
+  updateQuantityCart(productObject, cartIndex)
+  {
+    
   }
 
   componentDidMount() {
@@ -106,8 +120,9 @@ export default class MenuNavigator extends React.Component {
       {
         Home: { screen: HomeStack },
         Cart: {
-          screen: props => <Cart {...props}
-            cartArray={this.state.cartArray}
+          screen: props => <Cart { ...props }
+            cartArray = { this.state.cartArray }
+            deleteProductFromCart = { this.deleteProductFromCart.bind(this) }
           />
         },
         Search: { screen: Search },
