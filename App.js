@@ -3,6 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Font } from 'expo';
 import Expo from 'expo';
 import MainRoute from './src/Components/Main/index';
+import { Provider } from 'react-redux';
+import store from './src/Redux/store';
 
 import { FormattedWrapper } from 'react-native-globalize';
 
@@ -34,9 +36,10 @@ export default class App extends React.Component {
     }
     return (
       <FormattedWrapper locale='vi' currency='VNĐ'>
-        <MainRoute />
+        <Provider store={store}>
+          <MainRoute />
+        </Provider>
       </FormattedWrapper>
-
     );
   }
 }

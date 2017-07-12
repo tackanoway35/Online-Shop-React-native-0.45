@@ -18,23 +18,37 @@ import {
     Thumbnail,
 } from 'native-base';
 
-import global from '../../../Services/global';
-
-
+import { connect } from 'react-redux';
+import * as actionCreators from '../../../Redux/actionCreators';
 const cart = require('../../../media/appIcon/cartfull.png');
 
 const server = 'http://webbase.com.vn/ceramic';
 
-export default class ProductDetail extends Component {
+class ProductDetail extends Component {
+    static navigationOptions = ({ navigation }) => ({
+        header: (
+            <Header>
+                <Left style={{ flex: 1 }}>
+                    <Button onPress={() => navigation.goBack()}>
+                        <Icon name="arrow-back" />
+                    </Button>
+                </Left>
+                <Body style={{ flex: 3 }}>
+                    <Title>{navigation.state.params.product.title}</Title>
+                </Body>
+                <Right style={{ flex: 1 }}>
+                </Right>
+            </Header>
+        )
+    })
+
     constructor(props) {
         super(props);
         this.state = {
             photo: [],
             productInformation: {},
         }
-    }
 
-    componentDidMount() {
         //Get product from Navigator state params
         //Navigation State Param Variable
         const { product } = this.props.navigation.state.params;
@@ -44,7 +58,6 @@ export default class ProductDetail extends Component {
         fetch(api)
             .then(res => res.json())
             .then(resJSON => {
-                console.log(resJSON);
                 this.setState({
                     productInformation: resJSON,
                     photo: resJSON.photos
@@ -53,8 +66,17 @@ export default class ProductDetail extends Component {
             .catch(e => console.log(e))
     }
 
+    componentDidMount() {
+
+    }
+
     addThisProductToCart() {
-        this.props.addProductToCart(this.state.productInformation);
+        let productToArray = [];
+        productToArray[0] = {
+            product : this.state.productInformation,
+            quantity : 1
+        };
+        this.props.thunkAddToCart(productToArray);
     }
 
     render() {
@@ -66,18 +88,7 @@ export default class ProductDetail extends Component {
 
         return (
             <Container style={StyleSheet.flatten(wrapper)}>
-                <Header>
-                    <Left style={{ flex: 1 }}>
-                        <Button onPress={() => this.props.navigation.goBack()}>
-                            <Icon name="arrow-back" />
-                        </Button>
-                    </Left>
-                    <Body style={{ flex: 3 }}>
-                        <Title>{this.props.navigation.state.params.product.title}</Title>
-                    </Body>
-                    <Right style={{ flex: 1 }}>
-                    </Right>
-                </Header>
+
                 <Content style={StyleSheet.flatten(content)}>
                     <Card>
                         <CardItem>
@@ -151,3 +162,5 @@ const styles = StyleSheet.create({
         fontWeight: "500"
     }
 });
+
+export default connect(null, actionCreators)(ProductDetail)

@@ -24,35 +24,16 @@ import Collection from './Collection';
 import Categories from './Categories';
 import TopProduct from './TopProduct';
 
-export default class Home extends React.Component {
-  
-  constructor(props) {
-    super(props);
-    this.state = {
-      categories: [],
-      topProducts: []
-    }
-  }
+import {connect} from 'react-redux';
+import * as actionCreators from '../../../Redux/actionCreators';
 
-  componentDidMount() {
-    //Get Prop and setState categories and products
-    const { categories, topProducts } = this.props;
-    if (categories && topProducts) {
-      this.setState({
-        categories: categories,
-        topProducts: topProducts
-      })
-    }
-  }
-
-
-  render() {
-    const { wrapperContent } = styles;
-    return (
-      <Container>
+class Home extends React.Component {
+  static navigationOptions = ({ navigation }) => ({
+    header: (
+      <View>
         <Header>
           <Left style={{ flex: 1 }}>
-            <Button onPress={() => this.props.navigation.navigate('DrawerOpen')}>
+            <Button onPress={() => navigation.navigate('DrawerOpen')}>
               <Icon name="menu" />
             </Button>
           </Left>
@@ -72,11 +53,29 @@ export default class Home extends React.Component {
             <Text>Search</Text>
           </Button>
         </Header>
+      </View>
+    )
+  })
+
+  constructor(props)
+  {
+    super(props);
+    this.props.thunkFetchCategoriesTopProduct();
+  }
+
+  componentDidMount() {
+
+  }
+
+  render() {
+    const { wrapperContent } = styles;
+    return (
+      <Container>
         <ScrollView style={{ flex: 1 }}>
           <View style={wrapperContent}>
             <Collection />
-            <Categories navigation={this.props.navigation} categories={this.state.categories} />
-            <TopProduct navigation={this.props.navigation} topProducts={this.state.topProducts} />
+            <Categories navigation={this.props.navigation} categories={this.props.categories} />
+            <TopProduct navigation={this.props.navigation} topProducts={this.props.topProducts} />
           </View>
         </ScrollView>
       </Container>
@@ -92,3 +91,13 @@ var styles = StyleSheet.create({
     flex: 1,
   }
 })
+
+function mapStateToProps(state)
+{
+  return {
+    categories : state.categories,
+    topProducts : state.topProducts
+  }
+}
+
+export default connect(mapStateToProps, actionCreators)(Home);
