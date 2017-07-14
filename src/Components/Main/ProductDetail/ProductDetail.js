@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import {
-    View, Text, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity
+    View, Text, StyleSheet,
+    Image, Dimensions, ScrollView,
+    TouchableOpacity, Animated, Easing
 } from 'react-native';
+import { FormattedNumber } from 'react-native-globalize';
 
 import {
     Container,
@@ -34,7 +37,7 @@ class ProductDetail extends Component {
                     </Button>
                 </Left>
                 <Body style={{ flex: 3 }}>
-                    <Title>{navigation.state.params.product.title}</Title>
+                    <Title>{navigation.state.params.productTitle}</Title>
                 </Body>
                 <Right style={{ flex: 1 }}>
                 </Right>
@@ -45,39 +48,40 @@ class ProductDetail extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            photo: [],
-            productInformation: {},
+            productPrice: new Animated.Value(-700),
+            productQuantity: new Animated.Value(0)
         }
-
-        //Get product from Navigator state params
-        //Navigation State Param Variable
-        const { product } = this.props.navigation.state.params;
-        let productID = product.id;
-        //Get product detail and photo from server
-        let api = server + '/product-api/' + productID + '?expand=photos';
-        fetch(api)
-            .then(res => res.json())
-            .then(resJSON => {
-                this.setState({
-                    productInformation: resJSON,
-                    photo: resJSON.photos
-                })
-            })
-            .catch(e => console.log(e))
     }
 
     componentDidMount() {
-
+        const aniPrice = Animated.timing(
+            this.state.productPrice,
+            {
+                toValue: 0,
+                duration: 1500,
+                easing: Easing.bounce
+            }
+        )
+        const aniQuantity = Animated.timing(
+            this.state.productQuantity,
+            {
+                toValue: 1,
+                duration: 2000,
+                easing: Easing.bounce
+            }
+        )
+        Animated.stagger(1000, [aniPrice, aniQuantity]).start();
     }
 
     addThisProductToCart() {
         let productToArray = [];
         productToArray[0] = {
-            product : this.state.productInformation,
-            quantity : 1
+            product: this.props.topProductDetail,
+            quantity: 1
         };
         this.props.thunkAddToCart(productToArray);
     }
+
 
     render() {
         //Style Variable
@@ -86,27 +90,57 @@ class ProductDetail extends Component {
             productName, productPrice
         } = styles;
 
+        //Animated variable
+        const marginLeft = this.state.productPrice;
+        const opacity = this.state.productQuantity;
+
+        const { topProductDetail } = this.props;
         return (
             <Container style={StyleSheet.flatten(wrapper)}>
 
                 <Content style={StyleSheet.flatten(content)}>
                     <Card>
-                        <CardItem>
-                            <Left style={{ justifyContent: 'space-around' }}>
-                                <Body />
-                                <Button
-                                    iconLeft
-                                    success
-                                    onPress={() => this.addThisProductToCart()}
-                                >
-                                    <Icon name='cart' />
-                                    <Text style={textCart}>Add To Cart</Text>
-                                </Button>
-                            </Left>
-                        </CardItem>
+                        <Animated.View style = {{ opacity }}>
+                            <CardItem>
+                                {
+                                    topProductDetail.stock.quantity == 0
+                                        ?
+                                        <Left>
+                                            <Body style = {{ alignItems : 'center'}}>
+                                                <Text style = {{ color: 'red', fontSize : 18, fontWeight : "500" }}>Hết hàng</Text>
+                                            </Body>
+                                            <Button
+                                                iconLeft
+                                                success
+                                                disabled
+                                                onPress={() => this.addThisProductToCart()}
+                                            >
+                                                <Icon name='cart' />
+                                                <Text style={textCart}>Add To Cart</Text>
+                                            </Button>
+                                        </Left>
+                                        :
+                                        <Left>
+                                            <Body style = {{ alignItems : 'center'}}>
+                                                <Text style = {{ fontSize : 18, fontWeight : "500", color: 'green'}}>{`Còn ${topProductDetail.stock.quantity} sản phẩm`}</Text>
+                                            </Body>
+
+                                            <Button
+                                                iconLeft
+                                                success
+                                                onPress={() => this.addThisProductToCart()}
+                                            >
+                                                <Icon name='cart' />
+                                                <Text style={textCart}>Add To Cart</Text>
+                                            </Button>
+                                        </Left>
+                                }
+                            </CardItem>
+                        </Animated.View>
+
                         <CardItem cardBody>
                             <ScrollView style={productImage} horizontal>
-                                {this.state.photo.map((item) => (
+                                {this.props.topProductDetail.photos.map((item) => (
                                     <Image
                                         key={item.photo_id}
                                         source={{ uri: server + item.image }}
@@ -115,13 +149,19 @@ class ProductDetail extends Component {
                                 ))}
                             </ScrollView>
                         </CardItem>
-                        <CardItem style={{ backgroundColor: 'orange', justifyContent: 'center' }}>
-                            <Text style={productName}>{this.state.productInformation.title} / </Text>
-                            <Text style={productPrice}>{this.state.productInformation.price} VNĐ</Text>
-                        </CardItem>
+                        <Animated.View style={{ marginLeft }}>
+                            <CardItem style={{ backgroundColor: 'orange', justifyContent: 'center' }}>
+                                <Text style={productName}>{topProductDetail.title} / </Text>
+                                <FormattedNumber
+                                    value={topProductDetail.price}
+                                />
+                                <Text>&nbsp;VNĐ</Text>
+                            </CardItem>
+                        </Animated.View>
+
 
                         <CardItem>
-                            <Text>{this.state.productInformation.description}</Text>
+                            <Text>{topProductDetail.description}</Text>
                         </CardItem>
                     </Card>
                 </Content>
@@ -163,4 +203,10 @@ const styles = StyleSheet.create({
     }
 });
 
-export default connect(null, actionCreators)(ProductDetail)
+function mapStateToProps(state) {
+    return {
+        topProductDetail: state.topProductDetail
+    }
+}
+
+export default connect(mapStateToProps, actionCreators)(ProductDetail)

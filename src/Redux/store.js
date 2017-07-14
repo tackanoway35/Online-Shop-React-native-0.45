@@ -11,6 +11,10 @@ import thunk from 'redux-thunk';
 const DEFAULT_STATE = {
     categories: [],
     topProducts: [],
+    topProductDetail : {
+        photos : [],
+        stock : {}
+    },
     cart: []
 }
 const reducer = (state = DEFAULT_STATE, action) => {
@@ -68,6 +72,11 @@ const reducer = (state = DEFAULT_STATE, action) => {
                     return e;
                 })
             }
+            case "GET_TOP_PRODUCT_DETAIL" :
+            return {
+                ...state,
+                topProductDetail : action.topProductDetail
+            } 
         default:
             return state;
     }

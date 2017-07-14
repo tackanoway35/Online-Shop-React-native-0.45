@@ -1,4 +1,5 @@
 import { getCategoriesTopProduct } from '../Services/Api/getCategoriesTopProduct';
+import { getTopProductDetail } from '../Services/Api/getTopProductDetail';
 import getCart from '../Services/Storage/getCart';
 import saveCart from '../Services/Storage/saveCart';
 
@@ -20,6 +21,14 @@ export function acFetchCategoriesTopProductSuccess(categories, topProducts) {
 export function acFetchCategoriesTopProductError() {
     return {
         type: "FETCH_CATEGORIES_TOPPRODUCT_ERROR"
+    }
+}
+
+export function acGetTopProductDetail(topProductDetail)
+{
+    return {
+        type : "GET_TOP_PRODUCT_DETAIL",
+        topProductDetail
     }
 }
 //End action creators categories and top 6 newest product
@@ -73,10 +82,21 @@ export function thunkFetchCategoriesTopProduct() {
     return dispatch => {
         //Loading
         getCategoriesTopProduct()
-            .then(data => {
-                dispatch(acFetchCategoriesTopProductSuccess(data.categories, data.products))
+            .then(response => {
+                dispatch(acFetchCategoriesTopProductSuccess(response.categories, response.products))
             })
             .catch(e => console.log(e))
+    }
+}
+
+export function thunkGetTopProductDetail(productId)
+{
+    return dispatch => {
+        getTopProductDetail(productId)
+        .then( response => {
+            dispatch(acGetTopProductDetail(response))
+        })
+        .catch(e => console.log(e))
     }
 }
 

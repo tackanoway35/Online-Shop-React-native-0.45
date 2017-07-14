@@ -12,12 +12,21 @@ import {
     Content,
     Text
 } from 'native-base';
+import { FormattedNumber } from 'react-native-globalize';
+
+import { connect } from 'react-redux';
+import * as actionCreators from '../../../Redux/actionCreators';
 
 import sp1 from '../../../media/temp/sp1.jpeg';
 import sp2 from '../../../media/temp/sp2.jpeg';
 import sp3 from '../../../media/temp/sp3.jpeg';
 import sp4 from '../../../media/temp/sp4.jpeg';
-export default class TopProduct extends Component {
+class TopProduct extends Component {
+    getTopProductDetail(productId, productTitle) {
+        this.props.thunkGetTopProductDetail(productId);
+        this.props.navigation.navigate("ProductDetail", { productTitle });
+    }
+
     render() {
         //URL server
         const url = 'http://webbase.com.vn/ceramic';
@@ -33,17 +42,24 @@ export default class TopProduct extends Component {
 
                 <View style={tpContent}>
                     {
-                        topProducts.map( (item) => (
-                        <TouchableOpacity
-                            key={item.id} 
-                            style={tpProduct} 
-                            onPress={() => this.props.navigation.navigate('ProductDetail', {product : item})} 
-                        >
-                            <Image source={{uri : url + item.image}} style={tpImage} />
-                            <Text style={{fontWeight : '500', fontSize : 16}}>{item.title}</Text>
-                            <Text style={{fontSize: 14}}>{item.price} VNĐ</Text>
-                        </TouchableOpacity>
-                    ))}
+                        topProducts.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                style={tpProduct}
+
+                                onPress={() => this.getTopProductDetail(item.id, item.title)}
+                            >
+                                <Image source={{ uri: url + item.image }} style={tpImage} />
+                                <Text style={{ fontWeight: '500', fontSize: 16 }}>{item.title}</Text>
+                                <View style = {{ alignItems : 'center'}}>
+                                    <FormattedNumber
+                                        style={{ fontSize: 14 }}
+                                        value={item.price}
+                                    />
+                                    <Text style={{ fontSize: 14 }}>&nbsp;VNĐ</Text>
+                                </View>
+                            </TouchableOpacity>
+                        ))}
                 </View>
             </View>
         );
@@ -74,10 +90,12 @@ var styles = StyleSheet.create({
     tpProduct: {
         width: productWidth,
         alignItems: 'center',
-        marginBottom : 10
+        marginBottom: 10
     },
     tpImage: {
         width: productWidth,
         height: imageProductHeight
     }
 })
+
+export default connect(null, actionCreators)(TopProduct)
