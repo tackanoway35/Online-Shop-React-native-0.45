@@ -11,9 +11,11 @@ import {
 } from "native-base";
 import userImage from '../../media/appIcon/user.png';
 
+import { connect } from 'react-redux';
+
 const routes = ["Order History", "Change Information", "Sign Out"];
 
-export default class Menu extends React.Component {
+class Menu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,37 +23,47 @@ export default class Menu extends React.Component {
     }
   }
   render() {
-    const loggedInJSX = (
-      <List
-        dataArray={routes}
-        renderRow={data => {
-          return (
-            <ListItem
-              style={{color:'red'}}
-              button
-              onPress={() => this.props.navigation.navigate(data)}>
-              <Text>{data}</Text>
-            </ListItem>
-          );
-        }}
-      />
-    );
-
-    const loggedOutJSX = (
-      <Button
-        block
-        rounded
-        style={{ marginTop: 20 }}
-        onPress={()=>this.props.navigation.navigate('Authentication')}
-      >
-        <Text>Sign In</Text>
-      </Button>
-    );
-
-    const mainJSX = this.state.isLoggedIn ? loggedInJSX : loggedOutJSX;
+    //Redux
+    const { profile } = this.props;
+    var mainJSX = <View></View>
+    if (Object.keys(profile).length > 0) {
+      var mainJSX = (
+        <View>
+          <View>
+            <Text>{`Xin chào ${profile.username}`}</Text>
+            <Button>
+              <Text>Log out</Text>
+            </Button>
+          </View>
+          <List
+            dataArray={routes}
+            renderRow={data => {
+              return (
+                <ListItem
+                  button
+                  onPress={() => this.props.navigation.navigate(data)}>
+                  <Text>{data}</Text>
+                </ListItem>
+              );
+            }}
+          />
+        </View>
+      );
+    } else {
+      var mainJSX = (
+        <Button
+          block
+          rounded
+          style={{ marginTop: 20 }}
+          onPress={() => this.props.navigation.navigate('Authentication')}
+        >
+          <Text>Sign In</Text>
+        </Button>
+      );
+    }
     return (
       <Container>
-        <View style={{flex : 1}}>
+        <View style={{ flex: 1 }}>
           <Image
             source={{
               uri: "https://github.com/GeekyAnts/NativeBase-KitchenSink/raw/react-navigation/img/drawer-cover.png"
@@ -76,3 +88,10 @@ export default class Menu extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    profile: state.signIn.profile
+  }
+}
+export default connect(mapStateToProps)(Menu);

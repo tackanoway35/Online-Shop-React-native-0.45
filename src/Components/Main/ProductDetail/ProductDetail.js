@@ -97,7 +97,6 @@ class ProductDetail extends Component {
         const { topProductDetail } = this.props;
         return (
             <Container style={StyleSheet.flatten(wrapper)}>
-
                 <Content style={StyleSheet.flatten(content)}>
                     <Card>
                         <Animated.View style = {{ opacity }}>

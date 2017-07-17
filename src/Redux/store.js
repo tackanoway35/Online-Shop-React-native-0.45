@@ -11,14 +11,145 @@ import thunk from 'redux-thunk';
 const DEFAULT_STATE = {
     categories: [],
     topProducts: [],
-    topProductDetail : {
-        photos : [],
-        stock : {}
+    topProductDetail: {
+        photos: [],
+        stock: {}
     },
-    cart: []
+    cart: [],
+    signUp: {
+        isLoading: false,
+        error: false,
+    },
+    signIn: {
+        profile: {},
+        isLoadingSaveProfile: false,
+        isLoading: false,
+        error: false
+    },
+    authenticationStatus: true
 }
 const reducer = (state = DEFAULT_STATE, action) => {
     switch (action.type) {
+        case "SIGNUP_START":
+            return {
+                ...state,
+                signUp: {
+                    error: false,
+                    isLoading: true,
+                }
+            }
+        case "SIGNUP_SUCCESS":
+            return {
+                ...state,
+                signUp: {
+                    error: false,
+                    isLoading: false
+                }
+            }
+        case "SIGNUP_ERROR":
+            return {
+                ...state,
+                signUp: {
+                    error: true,
+                    isLoading: false
+                }
+            }
+
+        case "SIGNIN_START":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    error: false,
+                    isLoading: true,
+                    isLoadingSaveProfile: false,
+                }
+            }
+        case "SIGNIN_SUCCESS":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    error: false,
+                    isLoading: false,
+                    isLoadingSaveProfile: false,
+                }
+            }
+        case "SIGNIN_ERROR":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    error: true,
+                    isLoading: false,
+                    isLoadingSaveProfile: false,
+                }
+            }
+        case "SAVE_PROFILE_START":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    isLoading: false,
+                    error: false,
+                    isLoadingSaveProfile: true,
+                }
+            }
+
+        case "SAVE_PROFILE_SUCCESS":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    isLoading: false,
+                    error: false,
+                    isLoadingSaveProfile: false,
+                }
+            }
+
+        case "SAVE_PROFILE_ERROR":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    isLoading: false,
+                    error: true,
+                    isLoadingSaveProfile: false,
+                }
+            }
+
+        case "GET_PROFILE_SUCCESS":
+            return {
+                ...state,
+                signIn: {
+                    profile: action.profile,
+                    isLoading: false,
+                    error: false,
+                    isLoadingSaveProfile: false,
+                }
+            }
+
+        case "GET_PROFILE_ERROR":
+            return {
+                ...state,
+                signIn: {
+                    profile: {},
+                    isLoading: false,
+                    error: true,
+                    isLoadingSaveProfile: false,
+                }
+            }
+
+        case "GO_SIGNIN":
+            return {
+                ...state,
+                authenticationStatus: true
+            }
+        case "GO_SIGNUP":
+            return {
+                ...state,
+                authenticationStatus: false
+            }
         case "FETCH_CATEGORIES_TOPPRODUCT_SUCCESS":
             return {
                 ...state,
@@ -72,11 +203,11 @@ const reducer = (state = DEFAULT_STATE, action) => {
                     return e;
                 })
             }
-            case "GET_TOP_PRODUCT_DETAIL" :
+        case "GET_TOP_PRODUCT_DETAIL":
             return {
                 ...state,
-                topProductDetail : action.topProductDetail
-            } 
+                topProductDetail: action.topProductDetail
+            }
         default:
             return state;
     }

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { AppRegistry, Alert, StyleSheet, Dimensions, View, Image } from "react-native";
 import {
@@ -18,32 +17,25 @@ import {
   Footer,
   Input
 } from "native-base";
-export default class Authentication extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isSignIn : true,
-      email: '',
-      password: '',
-      name : ''
-    }
-  }
 
+import { connect } from 'react-redux';
+import * as actionCreators from '../../Redux/actionCreators';
+
+import SignIn from './SignIn';
+import SignUp from './SignUp';
+class Authentication extends React.Component {
   signInView()
   {
-    this.setState({
-      isSignIn : true
-    })
+    this.props.acGoSignIn();
   }
 
   signUpView()
   {
-    this.setState({
-      isSignIn : false
-    })
+    this.props.acGoSignUp();
   }
 
   render() {
+    //Style
     const {
       footer, btnSignInActive, btnSignInInActive, btnSignUpActive, btnSignUpInActive,
       content, emailInput, passwordInput, nameInput,
@@ -51,82 +43,10 @@ export default class Authentication extends React.Component {
       textActive, textInActive,
       container
     } = styles;
+    //Redux
+    const { authenticationStatus } = this.props;
 
-    const signInJSX = (
-      <Content style={StyleSheet.flatten(content)}>
-        <View style={viewEmailInput}>
-          <Input
-            style={StyleSheet.flatten(emailInput)}
-            placeholder="Enter your email"
-            onChangeText={(email) => this.setState({ email })}
-            value={this.state.email}
-          />
-        </View>
-
-        <View style={viewPasswordInput}>
-          <Input
-            style={StyleSheet.flatten(passwordInput)}
-            placeholder="Enter your password"
-            secureTextEntry={true}
-            onChangeText={(password) => this.setState({ password })}
-          />
-        </View>
-
-        <Button
-          block
-          rounded
-          outline
-          primary
-          bordered
-        >
-          <Text>Sign In Now</Text>
-        </Button>
-      </Content>
-    );
-
-    const signUpJSX = (
-      <Content style={StyleSheet.flatten(content)}>
-        <View style={viewNameInput}>
-          <Input
-            style={StyleSheet.flatten(nameInput)}
-            placeholder="Enter your name"
-            onChangeText={(name) => this.setState({ name })}
-            value={this.state.name}
-          />
-        </View>
-        <View style={viewEmailInput}>
-          <Input
-            style={StyleSheet.flatten(emailInput)}
-            placeholder="Enter your email"
-            onChangeText={(email) => this.setState({ email })}
-            value={this.state.email}
-          />
-        </View>
-
-        <View style={viewPasswordInput}>
-          <Input
-            inputBorderColor={'green'}
-            style={StyleSheet.flatten(passwordInput)}
-            placeholder="Enter your password"
-            secureTextEntry={true}
-            onChangeText={(password) => this.setState({ password })}
-          />
-        </View>
-
-        <Button
-          block
-          rounded
-          outline
-          primary
-          bordered
-        >
-          <Text>Sign Up Now</Text>
-        </Button>
-      </Content>
-    );
-
-    const isSignIn = this.state.isSignIn;
-    const mainJSX = isSignIn ? signInJSX : signUpJSX;
+    const mainJSX = authenticationStatus ? <SignIn /> : <SignUp />;
 
     return (
       <Container style={StyleSheet.flatten(container)}>
@@ -143,16 +63,16 @@ export default class Authentication extends React.Component {
         {mainJSX}
         <Footer style={StyleSheet.flatten(footer)}>
           <Button 
-            style={ isSignIn ? StyleSheet.flatten(btnSignInActive) : StyleSheet.flatten(btnSignInInActive)}
+            style={ authenticationStatus ? StyleSheet.flatten(btnSignInActive) : StyleSheet.flatten(btnSignInInActive)}
             onPress={() => this.signInView()}  
           >
-            <Text style={ isSignIn ? StyleSheet.flatten(textActive) : StyleSheet.flatten(textInActive)}>Sign In</Text>
+            <Text style={ authenticationStatus ? StyleSheet.flatten(textActive) : StyleSheet.flatten(textInActive)}>Sign In</Text>
           </Button>
           <Button 
-            style={isSignIn ? StyleSheet.flatten(btnSignUpInActive) : StyleSheet.flatten(btnSignUpActive)}
+            style={authenticationStatus ? StyleSheet.flatten(btnSignUpInActive) : StyleSheet.flatten(btnSignUpActive)}
             onPress={() => this.signUpView()}  
           >
-            <Text style={ isSignIn ? StyleSheet.flatten(textInActive) : StyleSheet.flatten(textActive)}>Sign Up</Text>
+            <Text style={ authenticationStatus ? StyleSheet.flatten(textInActive) : StyleSheet.flatten(textActive)}>Sign Up</Text>
           </Button>
         </Footer>
       </Container>
@@ -199,44 +119,6 @@ var styles = StyleSheet.create({
     borderWidth : 1,
     borderColor : 'blue'
   },
-  content: {
-    margin: 20,
-    marginTop: 150,
-
-  },
-  emailInput: {
-    height: 50,
-    paddingLeft: 20
-  },
-  passwordInput: {
-    height: 50,
-    paddingLeft: 20
-  },
-  nameInput : {
-    height : 50,
-    paddingLeft : 20
-  },
-  viewNameInput : {
-    marginBottom: 10,
-    height: 50,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'green'
-  },
-  viewEmailInput: {
-    marginBottom: 10,
-    height: 50,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'green'
-  },
-  viewPasswordInput: {
-    marginBottom: 30,
-    height: 50,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'green'
-  },
   textActive : {
     textAlign : 'center',
   },
@@ -245,3 +127,14 @@ var styles = StyleSheet.create({
     color: 'blue'
   }
 })
+
+function mapStateToProps(state)
+{
+  return {
+    signIn : state.signIn,
+    signUp : state.signUp,
+    authenticationStatus : state.authenticationStatus
+  }
+}
+
+export default connect(mapStateToProps, actionCreators)(Authentication)

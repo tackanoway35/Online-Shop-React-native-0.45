@@ -2,6 +2,93 @@ import { getCategoriesTopProduct } from '../Services/Api/getCategoriesTopProduct
 import { getTopProductDetail } from '../Services/Api/getTopProductDetail';
 import getCart from '../Services/Storage/getCart';
 import saveCart from '../Services/Storage/saveCart';
+import save from '../Services/Storage/save';
+import get from '../Services/Storage/get';
+
+import { postApi } from '../Services/Api/postApi';
+import { Alert } from 'react-native';
+
+//Authentication
+export function acSignUpStart() {
+    return {
+        type: 'SIGNUP_START'
+    }
+}
+
+export function acSignUpSuccess() {
+    return {
+        type: 'SIGNUP_SUCCESS'
+    }
+}
+
+export function acSignUpError() {
+    return {
+        type: "SIGNUP_ERROR"
+    }
+}
+
+export function acSignInStart() {
+    return {
+        type: 'SIGNIN_START'
+    }
+}
+
+export function acSignInSuccess() {
+    return {
+        type: 'SIGNIN_SUCCESS'
+    }
+}
+
+export function acSignInError() {
+    return {
+        type: "SIGNIN_ERROR"
+    }
+}
+
+export function acGoSignIn() {
+    return {
+        type: "GO_SIGNIN"
+    }
+}
+
+export function acGoSignUp() {
+    return {
+        type: "GO_SIGNUP"
+    }
+}
+
+export function acSaveProfileStart() {
+    return {
+        type: "SAVE_PROFILE_START"
+    }
+}
+
+export function acSaveProfileSuccess() {
+    return {
+        type: "SAVE_PROFILE_SUCCESS"
+    }
+}
+
+export function acSaveProfileError() {
+    return {
+        type: "SAVE_PROFILE_ERROR"
+    }
+}
+
+export function acGetProfileSuccess(profile)
+{
+    return {
+        type : "GET_PROFILE_SUCCESS",
+        profile : profile
+    }
+}
+
+export function acGetProfileError()
+{
+    return {
+        type : "GET_PROFILE_ERROR"
+    }
+}
 
 //Action Creator Fetch Categories and Top 6 Newest Product from server
 export function acFetchCategoriesTopProductStart() {
@@ -24,10 +111,9 @@ export function acFetchCategoriesTopProductError() {
     }
 }
 
-export function acGetTopProductDetail(topProductDetail)
-{
+export function acGetTopProductDetail(topProductDetail) {
     return {
-        type : "GET_TOP_PRODUCT_DETAIL",
+        type: "GET_TOP_PRODUCT_DETAIL",
         topProductDetail
     }
 }
@@ -61,22 +147,141 @@ export function acAddToCart(product) {
     }
 }
 
-export function acIncreaseQuantityCart(cartId)
-{
+export function acIncreaseQuantityCart(cartId) {
     return {
-        type : 'INCREASE_QUANTITY_CART',
-        cartId : cartId
+        type: 'INCREASE_QUANTITY_CART',
+        cartId: cartId
     }
 }
 
-export function acDecreaseQuantityCart(cartId)
-{
+export function acDecreaseQuantityCart(cartId) {
     return {
-        type : 'DECREASE_QUANTITY_CART',
-        cartId : cartId
+        type: 'DECREASE_QUANTITY_CART',
+        cartId: cartId
     }
 }
 //End action creators cart
+
+export function thunkSignUp(url, data) {
+    return dispatch => {
+        //Loading
+        dispatch(acSignUpStart());
+        postApi(url, data)
+            .then(resJSON => {
+                if (resJSON.message == 'Success') {
+                    Alert.alert(
+                        'Sign up successful',
+                        'Congratulations! You can use app now',
+                        [
+                            { text: 'Cancel', onPress: () => { }, style: 'cancel' },
+                            {
+                                text: 'OK', onPress: () => {
+                                    dispatch(acGoSignIn());
+                                }
+                            },
+                        ],
+                        { cancelable: false }
+                    )
+                    dispatch(acSignUpSuccess());
+                } else {
+                    Alert.alert(
+                        'Sign up failed',
+                        'Sorry. Please try again',
+                        [
+                            {
+                                text: 'Resign up',
+                                onPress: () => { dispatch(acSignUpError()) }
+                            }
+                        ]
+                    )
+                }
+
+            })
+            .catch(e => {
+                Alert.alert(
+                    'Sign up failed',
+                    'Sorry. Please try again',
+                    [
+                        {
+                            text: 'Resign up',
+                            onPress: () => { dispatch(acSignUpError()) }
+                        }
+                    ]
+                )
+            })
+    }
+}
+
+export function thunkSignIn(url, data) {
+    return dispatch => {
+        //Loading
+        dispatch(acSignInStart());
+        postApi(url, data)
+            .then(resJSON => {
+                if (resJSON.message == 'Success') {
+                    //Use AsyncStorage to save user information to local
+                    Alert.alert(
+                        'Sign in successful',
+                        'Congratulations! You can use app now',
+                        [
+                            {
+                                text: 'OK', onPress: () => {
+                                    dispatch(acGoSignIn());
+                                }
+                            },
+                        ],
+                        { cancelable: false }
+                    )
+                    dispatch(acSignInSuccess());
+                    //Save to local
+                    dispatch(acSaveProfileStart());
+                    save('@profile', resJSON.profile)
+                        .then(res => {
+                            dispatch(acSaveProfileSuccess())
+                        })
+                        .catch(e => {
+                            dispatch(acSaveProfileError())
+                        })
+                } else {
+                    Alert.alert(
+                        'Sign in failed',
+                        'Sorry. Please try again',
+                        [
+                            {
+                                text: 'Resign in',
+                                onPress: () => { dispatch(acSignInError()) }
+                            }
+                        ]
+                    )
+                }
+
+            })
+            .catch(e => {
+                Alert.alert(
+                    'Sign in failed',
+                    'Sorry. Please try again',
+                    [
+                        {
+                            text: 'Resign in',
+                            onPress: () => { dispatch(acSignInError()) }
+                        }
+                    ]
+                )
+            })
+    }
+}
+
+export function thunkGetProfile()
+{
+    return dispatch => {
+        get('@profile')
+        .then( res => {
+            console.log(res);
+            dispatch(acGetProfileSuccess(res))
+        })
+        .catch( e => dispatch(acGetCartError()))
+    }
+}
 
 export function thunkFetchCategoriesTopProduct() {
     return dispatch => {
@@ -89,14 +294,13 @@ export function thunkFetchCategoriesTopProduct() {
     }
 }
 
-export function thunkGetTopProductDetail(productId)
-{
+export function thunkGetTopProductDetail(productId) {
     return dispatch => {
         getTopProductDetail(productId)
-        .then( response => {
-            dispatch(acGetTopProductDetail(response))
-        })
-        .catch(e => console.log(e))
+            .then(response => {
+                dispatch(acGetTopProductDetail(response))
+            })
+            .catch(e => console.log(e))
     }
 }
 
@@ -126,53 +330,48 @@ export function thunkDeleteFromCart(cartId) {
     }
 }
 
-export function thunkAddToCart(product)
-{
+export function thunkAddToCart(product) {
     return (dispatch, getState) => {
         const { cart } = getState();
         const newCart = product.concat(cart);
         saveCart(newCart)
-        .then( response => {
-            alert("Add to cart successfull");
-            dispatch(acAddToCart(product))
-        })
-        .catch( e => {
-            console.log(e);
-            alert("Add to cart error");
-        })
+            .then(response => {
+                alert("Add to cart successfull");
+                dispatch(acAddToCart(product))
+            })
+            .catch(e => {
+                console.log(e);
+                alert("Add to cart error");
+            })
     }
 }
 
-export function thunkIncreaseQuantityCart(cartId)
-{
+export function thunkIncreaseQuantityCart(cartId) {
     return (dispatch, getState) => {
-        if(dispatch(acIncreaseQuantityCart(cartId)))
-        {
+        if (dispatch(acIncreaseQuantityCart(cartId))) {
             let { cart } = getState();
             saveCart(cart)
-            .then(response => {
-                
-            })  
-            .catch(e => {
-                alert("Have error. Please re run app before increase quantity product")
-            })      
+                .then(response => {
+
+                })
+                .catch(e => {
+                    alert("Have error. Please re run app before increase quantity product")
+                })
         }
     }
 }
 
-export function thunkDecreaseQuantityCart(cartId)
-{
+export function thunkDecreaseQuantityCart(cartId) {
     return (dispatch, getState) => {
-        if(dispatch(acDecreaseQuantityCart(cartId)))
-        {
+        if (dispatch(acDecreaseQuantityCart(cartId))) {
             let { cart } = getState();
             saveCart(cart)
-            .then(response => {
-                
-            })  
-            .catch(e => {
-                alert("Have error. Please re run app before decrease quantity product")
-            })      
+                .then(response => {
+
+                })
+                .catch(e => {
+                    alert("Have error. Please re run app before decrease quantity product")
+                })
         }
     }
 }
