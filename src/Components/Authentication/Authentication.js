@@ -46,13 +46,13 @@ class Authentication extends React.Component {
     //Redux
     const { authenticationStatus } = this.props;
 
-    const mainJSX = authenticationStatus ? <SignIn /> : <SignUp />;
+    const mainJSX = authenticationStatus ? <SignIn navigation = { this.props.navigation }/> : <SignUp />;
 
     return (
       <Container style={StyleSheet.flatten(container)}>
         <Header>
           <Left style={{ flex: 1 }}>
-            <Button transparent onPress={() => this.props.navigation.navigate('Main')}>
+            <Button transparent onPress={() => this.props.navigation.goBack()}>
               <Icon name="arrow-back" />
             </Button>
           </Left>
@@ -83,7 +83,7 @@ class Authentication extends React.Component {
 var styles = StyleSheet.create({
   footer: {
     backgroundColor: '#FFF',
-    margin: 20
+    margin: 15
   },
   btnSignInActive : {
     borderTopLeftRadius: 20,

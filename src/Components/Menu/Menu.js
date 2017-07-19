@@ -1,5 +1,5 @@
 import React from "react";
-import { AppRegistry, Image, StatusBar, View } from "react-native";
+import { AppRegistry, Image, StatusBar, View, StyleSheet } from "react-native";
 import {
   Button,
   Text,
@@ -10,56 +10,19 @@ import {
   Icon
 } from "native-base";
 import userImage from '../../media/appIcon/user.png';
-
+import MenuSignIn from './MenuSignIn';
+import MenuActions from './MenuActions';
 import { connect } from 'react-redux';
 
-const routes = ["Order History", "Change Information", "Sign Out"];
-
 class Menu extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoggedIn: false
-    }
-  }
   render() {
     //Redux
     const { profile } = this.props;
     var mainJSX = <View></View>
     if (Object.keys(profile).length > 0) {
-      var mainJSX = (
-        <View>
-          <View>
-            <Text>{`Xin chào ${profile.username}`}</Text>
-            <Button>
-              <Text>Log out</Text>
-            </Button>
-          </View>
-          <List
-            dataArray={routes}
-            renderRow={data => {
-              return (
-                <ListItem
-                  button
-                  onPress={() => this.props.navigation.navigate(data)}>
-                  <Text>{data}</Text>
-                </ListItem>
-              );
-            }}
-          />
-        </View>
-      );
+      mainJSX = <MenuActions profile = { profile } navigation = { this.props.navigation }/>
     } else {
-      var mainJSX = (
-        <Button
-          block
-          rounded
-          style={{ marginTop: 20 }}
-          onPress={() => this.props.navigation.navigate('Authentication')}
-        >
-          <Text>Sign In</Text>
-        </Button>
-      );
+      mainJSX = <MenuSignIn navigation = { this.props.navigation }/>
     }
     return (
       <Container>

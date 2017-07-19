@@ -19,20 +19,6 @@ import litteIcon from '../../../media/temp/little.jpg';
 import maxiIcon from '../../../media/temp/maxi.jpg';
 import partyIcon from '../../../media/temp/party.jpg';
 
-const categories_data = [
-    {
-        text: 'Litte Dress',
-        image: litteIcon,
-    },
-    {
-        text: 'Maxi Dress',
-        image: maxiIcon,
-    },
-    {
-        text: 'Party Dress',
-        image: partyIcon
-    }
-];
 export default class Categories extends React.Component {
     constructor(props) {
         super(props);
@@ -57,14 +43,14 @@ export default class Categories extends React.Component {
         //Set Swiper
         let swiper = null;
 
-        if (this.state.visibleSwiper) {
+        if (categories.length > 0 && this.state.visibleSwiper) {
             swiper =
                 <Swiper width={categorySlideWidth} height={categorySlideHeight} removeClippedSubviews={false}>
                     {categories.map((item) => (
                         <TouchableOpacity
                             style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
                             key={item.id}
-                            onPress={() => this.props.navigation.navigate('ListProduct')}
+                            onPress={() => this.props.navigation.navigate('ListProduct', { category : item })}
                         >
                             <Image source={{ uri: server + item.image }} style={{ width: categorySlideWidth, height: categorySlideHeight, justifyContent: 'center', alignItems: 'center', }}>
                                 <Text style={{ color: 'green' }}>
@@ -73,7 +59,6 @@ export default class Categories extends React.Component {
                             </Image>
                         </TouchableOpacity>
                     ))}
-
                 </Swiper>;
         } else {
             swiper = <View></View>

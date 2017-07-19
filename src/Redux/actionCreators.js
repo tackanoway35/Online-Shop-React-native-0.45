@@ -4,6 +4,7 @@ import getCart from '../Services/Storage/getCart';
 import saveCart from '../Services/Storage/saveCart';
 import save from '../Services/Storage/save';
 import get from '../Services/Storage/get';
+import removeByKey from '../Services/Storage/removeItem';
 
 import { postApi } from '../Services/Api/postApi';
 import { Alert } from 'react-native';
@@ -45,6 +46,24 @@ export function acSignInError() {
     }
 }
 
+export function acSignOutStart() {
+    return {
+        type: "SIGNOUT_START"
+    }
+}
+
+export function acSignOutSuccess() {
+    return {
+        type: "SIGNOUT_SUCCESS"
+    }
+}
+
+export function acSignOutError() {
+    return {
+        type: "SIGNOUT_ERROR"
+    }
+}
+
 export function acGoSignIn() {
     return {
         type: "GO_SIGNIN"
@@ -75,18 +94,16 @@ export function acSaveProfileError() {
     }
 }
 
-export function acGetProfileSuccess(profile)
-{
+export function acGetProfileSuccess(profile) {
     return {
-        type : "GET_PROFILE_SUCCESS",
-        profile : profile
+        type: "GET_PROFILE_SUCCESS",
+        profile: profile
     }
 }
 
-export function acGetProfileError()
-{
+export function acGetProfileError() {
     return {
-        type : "GET_PROFILE_ERROR"
+        type: "GET_PROFILE_ERROR"
     }
 }
 
@@ -212,7 +229,7 @@ export function thunkSignUp(url, data) {
     }
 }
 
-export function thunkSignIn(url, data) {
+export function thunkSignIn(url, data, navigation) {
     return dispatch => {
         //Loading
         dispatch(acSignInStart());
@@ -220,24 +237,26 @@ export function thunkSignIn(url, data) {
             .then(resJSON => {
                 if (resJSON.message == 'Success') {
                     //Use AsyncStorage to save user information to local
-                    Alert.alert(
-                        'Sign in successful',
-                        'Congratulations! You can use app now',
-                        [
-                            {
-                                text: 'OK', onPress: () => {
-                                    dispatch(acGoSignIn());
-                                }
-                            },
-                        ],
-                        { cancelable: false }
-                    )
+
                     dispatch(acSignInSuccess());
                     //Save to local
                     dispatch(acSaveProfileStart());
                     save('@profile', resJSON.profile)
                         .then(res => {
-                            dispatch(acSaveProfileSuccess())
+                            dispatch(acSaveProfileSuccess());
+                            Alert.alert(
+                                'Sign in successful',
+                                'Congratulations! You can use app now',
+                                [
+                                    {
+                                        text: 'OK', onPress: () => {
+                                            dispatch(acGoSignIn());
+                                            navigation.goBack();
+                                        }
+                                    },
+                                ],
+                                { cancelable: false }
+                            )
                         })
                         .catch(e => {
                             dispatch(acSaveProfileError())
@@ -271,15 +290,25 @@ export function thunkSignIn(url, data) {
     }
 }
 
-export function thunkGetProfile()
-{
+export function thunkSignOut() {
+    return dispatch => {
+        //Loading
+        dispatch(acSignOutStart());
+        removeByKey('@profile')
+            .then(res => {
+                dispatch(acSignOutSuccess());
+            })
+            .catch(e => dispatch(acSignOutError()))
+    }
+}
+export function thunkGetProfile() {
     return dispatch => {
         get('@profile')
-        .then( res => {
-            console.log(res);
-            dispatch(acGetProfileSuccess(res))
-        })
-        .catch( e => dispatch(acGetCartError()))
+            .then(res => {
+                dispatch(acGetProfileSuccess(res));
+                dispatch(acGoSignIn());
+            })
+            .catch(e => dispatch(acGetCartError()))
     }
 }
 

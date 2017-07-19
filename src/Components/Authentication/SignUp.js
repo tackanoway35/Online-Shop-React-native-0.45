@@ -3,105 +3,24 @@ import { View, StyleSheet } from 'react-native';
 import {
     Content, Input, Button, Text, Item, Spinner
 } from 'native-base';
+
+//Redux and Redux form
 import { connect } from 'react-redux';
 import * as actionCreators from '../../Redux/actionCreators';
+import { Field, reduxForm } from 'redux-form';
 
-class SignUp extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            email: '',
-            password: '',
-            name: '',
-            username: ''
-        }
-    }
+//Validate
+import validate from '../../Validate/SignUpValidate';
 
-    signUp(data) {
-        let url = "http://webbase.com.vn/ceramic/customer-api/sign-up";
-        this.props.thunkSignUp(url, data);
-    }
-    render() {
-        //Style
-        const {
-                content, input,
-            viewEmailInput, viewPasswordInput, viewNameInput, viewUsernameInput
-        } = styles;
-
-        //Redux
-        const { isLoading, error } = this.props.signUp
-        return (
-            <Content style={StyleSheet.flatten(content)}>
-                <Item rounded style={StyleSheet.flatten(viewUsernameInput)}>
-                    <Input
-                        style={StyleSheet.flatten(input)}
-                        placeholder="Enter your username"
-                        onChangeText={(username) => this.setState({ username })}
-                    />
-                </Item>
-                <Item rounded style={StyleSheet.flatten(viewPasswordInput)}>
-                    <Input
-                        style={StyleSheet.flatten(input)}
-                        placeholder="Enter your password"
-                        secureTextEntry={true}
-                        onChangeText={(password) => this.setState({ password })}
-                    />
-                </Item>
-                <Item rounded style={StyleSheet.flatten(viewNameInput)}>
-                    <Input
-                        style={StyleSheet.flatten(input)}
-                        placeholder="Enter your name"
-                        onChangeText={(name) => this.setState({ name })}
-                    />
-                </Item>
-                <Item rounded style={StyleSheet.flatten(viewEmailInput)}>
-                    <Input
-                        style={StyleSheet.flatten(input)}
-                        placeholder="Enter your email"
-                        onChangeText={(email) => this.setState({ email })}
-                    />
-                </Item>
-
-                {
-                    isLoading ?
-                        <Button
-                            block
-                            rounded
-                            outline
-                            primary
-                            bordered
-                            disabled
-                        >
-                            <Text>Loading&nbsp;&nbsp;</Text>
-                            <Spinner color = 'blue'/>
-                        </Button>
-                        :
-                        <Button
-                            block
-                            rounded
-                            outline
-                            primary
-                            bordered
-                            onPress={() => this.signUp({
-                                username: this.state.username,
-                                password: this.state.password,
-                                name: this.state.name,
-                                email: this.state.email
-                            })}
-                        >
-                            <Text>Sign Up Now</Text>
-                        </Button>
-                }
-
-            </Content>
-        )
-    }
-}
-
+//Style
 const styles = StyleSheet.create({
     content: {
-        margin: 20,
-        marginTop: 90,
+        margin: 15,
+        marginTop: 80,
+    },
+    contentInvalid: {
+        margin: 15,
+        marginTop: 40
     },
     viewUsernameInput: {
         marginBottom: 10,
@@ -113,12 +32,146 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     viewEmailInput: {
-        marginBottom: 30,
+        marginBottom: 15,
     },
     input: {
         paddingLeft: 20
     }
 })
+
+const {
+    content, contentInvalid, input,
+    viewEmailInput, viewPasswordInput, viewNameInput, viewUsernameInput
+} = styles;
+
+//Declare input
+const renderUsernameField = field => (
+    <View style={viewUsernameInput}>
+        <Item rounded>
+            <Input
+                {...field.input}
+                style={StyleSheet.flatten(input)}
+                placeholder="Enter your username"
+            />
+        </Item>
+        <View style={{ alignItems: 'center' }}>
+            {field.meta.touched && field.meta.error && <Text style={{ color: 'red' }}>{field.meta.error}</Text>}
+        </View>
+    </View>
+)
+
+const renderPasswordField = field => (
+    <View style={viewPasswordInput}>
+        <Item rounded>
+            <Input
+                {...field.input}
+                style={StyleSheet.flatten(input)}
+                placeholder="Enter your password"
+                secureTextEntry={true}
+            />
+        </Item>
+        <View style={{ alignItems: 'center' }}>
+            {field.meta.touched && field.meta.error && <Text style={{ color: 'red' }}>{field.meta.error}</Text>}
+        </View>
+    </View>
+)
+
+const renderNameField = field => (
+    <View style={viewNameInput}>
+        <Item rounded>
+            <Input
+                {...field.input}
+                style={StyleSheet.flatten(input)}
+                placeholder="Enter your name"
+            />
+        </Item>
+        <View style={{ alignItems: 'center' }}>
+            {field.meta.touched && field.meta.error && <Text style={{ color: 'red' }}>{field.meta.error}</Text>}
+        </View>
+    </View>
+)
+
+const renderEmailField = field => (
+    <View style={viewEmailInput}>
+        <Item rounded>
+            <Input
+                {...field.input}
+                style={StyleSheet.flatten(input)}
+                placeholder="Enter your email"
+            />
+        </Item>
+        <View style={{ alignItems: 'center' }}>
+            {field.meta.touched && field.meta.error && <Text style={{ color: 'red' }}>{field.meta.error}</Text>}
+        </View>
+    </View>
+)
+
+class SignUp extends Component {
+    signUp(data) {
+        let url = "http://webbase.com.vn/ceramic/customer-api/sign-up";
+        this.props.thunkSignUp(url, data);
+    }
+    render() {
+        //Redux
+        const { isLoading, error } = this.props.signUp
+        //Redux Form
+        const { handleSubmit, invalid, reset, pristine, anyTouched } = this.props;
+        if (!invalid && pristine) {
+            styleMarginTop = content;
+        }
+        if (invalid && !pristine) {
+            styleMarginTop = contentInvalid;
+        }
+
+        if (!invalid && !pristine) {
+            styleMarginTop = content;
+        }
+
+        if(!anyTouched && invalid && pristine)
+        {
+            styleMarginTop = content
+        }
+        if(anyTouched && invalid && pristine)
+        {
+            styleMarginTop = contentInvalid
+        }
+        return (
+            <Content style={StyleSheet.flatten(styleMarginTop)}>
+                <Field name="username" component={renderUsernameField} />
+                <Field name="password" component={renderPasswordField} />
+                <Field name="name" component={renderNameField} />
+                <Field name="email" component={renderEmailField} />
+                {
+                    isLoading ?
+                        <Button
+                            block
+                            rounded
+                            outline
+                            primary
+                            bordered
+                            disabled
+                        >
+                            <Text>Loading&nbsp;&nbsp;</Text>
+                            <Spinner color='blue' />
+                        </Button>
+                        :
+                        <Button
+                            block
+                            rounded
+                            outline
+                            primary
+                            bordered
+                            disabled={invalid || pristine}
+                            onPress={handleSubmit(this.signUp.bind(this))}
+                        >
+                            <Text>Sign Up Now</Text>
+                        </Button>
+                }
+
+            </Content>
+        )
+    }
+}
 
 function mapStateToProps(state) {
     return {
@@ -126,4 +179,7 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, actionCreators)(SignUp);
+export default reduxForm({
+    form: 'signUp',
+    validate
+})(connect(mapStateToProps, actionCreators)(SignUp))

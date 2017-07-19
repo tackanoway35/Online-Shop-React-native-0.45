@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimentions, Image, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimentions, Image, TouchableOpacity, FlatList } from 'react-native';
 import {
     Container,
     Content,
@@ -10,12 +10,16 @@ import {
     Body,
     Title,
     Right,
-    Text
+    Text,
+    List,
+    ListItem
 } from 'native-base';
 
-import sp1 from '../../../media/temp/sp1.jpeg';
-import sp2 from '../../../media/temp/sp2.jpeg';
-import sp3 from '../../../media/temp/sp3.jpeg';
+import { FormattedNumber } from 'react-native-globalize';
+
+import { getApi } from '../../../Services/Api/getApi';
+
+const server = "http://webbase.com.vn/ceramic";
 
 export default class ListProduct extends Component {
     static navigationOptions = ({ navigation }) => ({
@@ -31,7 +35,7 @@ export default class ListProduct extends Component {
                 </Left>
                 <Body>
                     <Title>
-                        List Product
+                        {navigation.state.params.category.title}
                     </Title>
                 </Body>
                 <Right />
@@ -39,13 +43,42 @@ export default class ListProduct extends Component {
         )
     });
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            page: 1,
+            refreshing: false,
+            productsByCategory: []
+        }
+
+
+    }
+
+    _keyExtractor = (item, index) => item.id;
+
+    componentDidMount() {
+        //State param navigation
+        const { category } = this.props.navigation.state.params;
+        let url = 'http://webbase.com.vn/ceramic/product-api/get-product-by-category/' + category.id + '?page=1';
+        getApi(url)
+            .then(res => {
+                this.setState({
+                    productsByCategory: res
+                })
+            })
+            .catch(e => console.log(e))
+    }
+
     render() {
+        //Style
         const {
-            container, wrapper, title,
+            container, wrapper, title, productPrice,
             textTitle, content, imageProduct,
             information, lastInformation, image,
             txtName, txtPrice, txtMaterial, txtColor, txtShowDetail
         } = styles;
+        //Props
+        const { category } = this.props.navigation.state.params;
         return (
             <Container>
                 <Content style={StyleSheet.flatten(container)}>
@@ -53,69 +86,44 @@ export default class ListProduct extends Component {
 
                         {/*Title*/}
                         <View style={title}>
-                            <Text style={StyleSheet.flatten(textTitle)}>Party Dress</Text>
+                            <Text style={StyleSheet.flatten(textTitle)}>{category.title}</Text>
                         </View>
                         {/*End title*/}
 
-                        {/*Product 1*/}
-                        <View style={content}>
-                            <View style={imageProduct}>
-                                <Image style={image} source={sp1} />
-                            </View>
-                            <View style={information}>
-                                <Text style={StyleSheet.flatten(txtName)}>Lace Sleeve Si</Text>
-                                <Text style={StyleSheet.flatten(txtPrice)}>$999</Text>
-                                <Text style={StyleSheet.flatten(txtMaterial)}>Material silk</Text>
-                                <View style={lastInformation}>
-                                    <Text style={StyleSheet.flatten(txtColor)}>Color </Text>
-                                    <View style={{backgroundColor : 'cyan', height : 16, width : 16, borderRadius : 8}}></View>
-                                    <TouchableOpacity>
-                                        <Text style={StyleSheet.flatten(txtShowDetail)}>SHOW DETAILS</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                        {/*End product 1*/}
+                        <FlatList
+                            onEndReachedThreshold={50}
+                            onEndReached={() => {
+                                alert("Flat list on end reach")
+                            }}
+                            data={this.state.productsByCategory}
+                            renderItem={({ item }) => (
+                                <View style={content}>
+                                    <View style={imageProduct}>
+                                        <Image style={image} source={{ uri: `${server}${item.image}` }} />
+                                    </View>
+                                    <View style={information}>
+                                        <Text style={StyleSheet.flatten(txtName)}>{item.title}</Text>
+                                        <View style={productPrice}>
+                                            <FormattedNumber
+                                                style={txtPrice}
+                                                value={item.price}
+                                            />
+                                            <Text style={StyleSheet.flatten(txtPrice)}>&nbsp;VNĐ</Text>
+                                        </View>
 
-                        {/*Product 2*/}
-                        <View style={content}>
-                            <View style={imageProduct}>
-                                <Image style={image} source={sp2} />
-                            </View>
-                            <View style={information}>
-                                <Text style={StyleSheet.flatten(txtName)}>Asymetrical G</Text>
-                                <Text style={StyleSheet.flatten(txtPrice)}>$999</Text>
-                                <Text style={StyleSheet.flatten(txtMaterial)}>Material leather</Text>
-                                <View style={lastInformation}>
-                                    <Text style={StyleSheet.flatten(txtColor)}>Color </Text>
-                                    <View style={{backgroundColor : 'red', height : 16, width : 16, borderRadius : 8}}></View>
-                                    <TouchableOpacity>
-                                        <Text style={StyleSheet.flatten(txtShowDetail)}>SHOW DETAILS</Text>
-                                    </TouchableOpacity>
+                                        <Text style={StyleSheet.flatten(txtMaterial)}>{item.brand}</Text>
+                                        <View style={lastInformation}>
+                                            <Text style={StyleSheet.flatten(txtColor)}>Color </Text>
+                                            <View style={{ backgroundColor: 'red', height: 16, width: 16, borderRadius: 8 }}></View>
+                                            <TouchableOpacity>
+                                                <Text style={StyleSheet.flatten(txtShowDetail)}>SHOW DETAILS</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
                                 </View>
-                            </View>
-                        </View>
-                        {/*End product 2*/}
-
-                        {/*Product 3*/}
-                        <View style={content}>
-                            <View style={imageProduct}>
-                                <Image style={image} source={sp3} />
-                            </View>
-                            <View style={information}>
-                                <Text style={StyleSheet.flatten(txtName)}>Asymetrical G</Text>
-                                <Text style={StyleSheet.flatten(txtPrice)}>$999</Text>
-                                <Text style={StyleSheet.flatten(txtMaterial)}>Material leather</Text>
-                                <View style={lastInformation}>
-                                    <Text style={StyleSheet.flatten(txtColor)}>Color </Text>
-                                    <View style={{backgroundColor : 'pink', height : 16, width : 16, borderRadius : 8}}></View>
-                                    <TouchableOpacity>
-                                        <Text style={StyleSheet.flatten(txtShowDetail)}>SHOW DETAILS</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                        {/*End product 3*/}
+                            )}
+                            keyExtractor={this._keyExtractor}
+                        />
                     </View>
                 </Content>
             </Container>
@@ -128,23 +136,25 @@ var styles = StyleSheet.create({
         backgroundColor: '#f4f1e6',
     },
     wrapper: {
-        flex : 1,
+        flex: 1,
         margin: 8,
-        backgroundColor : '#fff'
+        backgroundColor: '#fff'
     },
     title: {
+        justifyContent: 'center',
         marginBottom: 10
     },
     textTitle: {
         textAlign: 'center',
         color: 'red',
-        fontSize: 18
+        fontSize: 20
     },
     content: {
         paddingVertical: 10,
         flexDirection: 'row',
-        borderTopColor: '#bbb',
-        borderTopWidth: 1,
+        borderColor: 'blue',
+        borderWidth: 1,
+        margin: 5
     },
     imageProduct: {
         paddingLeft: 5
@@ -156,18 +166,22 @@ var styles = StyleSheet.create({
     lastInformation: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems : 'center'
+        alignItems: 'center'
     },
     information: {
-        flex : 1,
+        flex: 1,
         justifyContent: 'space-between',
-        paddingLeft : 10
+        paddingLeft: 10
     },
     txtName: {
         color: '#BCBCBC',
         fontSize: 18,
         fontWeight: '500',
-        
+
+    },
+    productPrice: {
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     txtPrice: {
         color: 'red'
@@ -175,10 +189,10 @@ var styles = StyleSheet.create({
     txtMaterial: {
         fontWeight: '600'
     },
-    txtColor : {
+    txtColor: {
     },
-    txtShowDetail : {
+    txtShowDetail: {
         paddingRight: 5,
-        color : 'red'
+        color: 'red'
     }
 })

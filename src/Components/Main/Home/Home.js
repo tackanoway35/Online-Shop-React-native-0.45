@@ -95,8 +95,8 @@ var styles = StyleSheet.create({
 function mapStateToProps(state)
 {
   return {
-    categories : state.categories,
-    topProducts : state.topProducts
+    categories : state.categoriesProduct.categories,
+    topProducts : state.categoriesProduct.topProducts
   }
 }
 

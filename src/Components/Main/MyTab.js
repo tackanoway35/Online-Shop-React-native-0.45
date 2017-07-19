@@ -10,10 +10,10 @@ class MyTab extends Component {
         super(props);
         //Get cart from local
         this.props.thunkGetLocalCart();
-        
+        this.props.thunkGetProfile();
     }
     componentWillMount() {
-        this.props.thunkGetProfile();
+        
     }
 
     render() {

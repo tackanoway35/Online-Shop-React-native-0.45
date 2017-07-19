@@ -22,8 +22,8 @@ import sp2 from '../../../media/temp/sp2.jpeg';
 import sp3 from '../../../media/temp/sp3.jpeg';
 import sp4 from '../../../media/temp/sp4.jpeg';
 class TopProduct extends Component {
-    getTopProductDetail(productId, productTitle) {
-        this.props.thunkGetTopProductDetail(productId);
+    async getTopProductDetail(productId, productTitle) {
+        await this.props.thunkGetTopProductDetail(productId);
         this.props.navigation.navigate("ProductDetail", { productTitle });
     }
 

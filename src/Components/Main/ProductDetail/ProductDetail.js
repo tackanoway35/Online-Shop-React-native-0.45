@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
 
 function mapStateToProps(state) {
     return {
-        topProductDetail: state.topProductDetail
+        topProductDetail: state.topProductDetail.topProductDetail
     }
 }
 

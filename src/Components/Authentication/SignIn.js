@@ -3,87 +3,19 @@ import { View, StyleSheet } from 'react-native';
 
 import { Content, Input, Button, Text, Item, Spinner } from 'native-base';
 
+//Redux
 import { connect } from 'react-redux';
 import * as actionCreators from '../../Redux/actionCreators';
+//End redux
 
-class SignIn extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: '',
-            password: ''
-        }
-    }
-
-    signIn(data) {
-        let url = "http://webbase.com.vn/ceramic/customer-api/sign-in";
-        this.props.thunkSignIn(url, data);
-    }
-    render() {
-        //Style
-        const {
-                content, input,
-            viewUsernameInput, viewPasswordInput
-        } = styles;
-
-        //Redux
-        const { isLoading, error } = this.props.signIn;
-        return (
-            <Content style={StyleSheet.flatten(content)}>
-                <Item rounded style={StyleSheet.flatten(viewUsernameInput)}>
-                    <Input
-                        style={StyleSheet.flatten(input)}
-                        placeholder="Enter your username"
-                        onChangeText={(username) => this.setState({ username })}
-                    />
-                </Item>
-
-                <Item rounded style={StyleSheet.flatten(viewPasswordInput)}>
-                    <Input
-                        style={StyleSheet.flatten(input)}
-                        placeholder="Enter your password"
-                        secureTextEntry={true}
-                        onChangeText={(password) => this.setState({ password })}
-                    />
-                </Item>
-
-                {
-                    isLoading ?
-                        <Button
-                            block
-                            rounded
-                            outline
-                            primary
-                            bordered
-                            disabled
-                        >
-                            <Text>Loading&nbsp;&nbsp;</Text>
-                            <Spinner color = 'blue'/>
-                        </Button>
-                        :
-                        <Button
-                            block
-                            rounded
-                            outline
-                            primary
-                            bordered
-                            onPress={() => this.signIn({
-                                username: this.state.username,
-                                password: this.state.password
-                            })}
-                        >
-                            <Text>Sign In Now</Text>
-                        </Button>
-                }
-            </Content>
-        )
-    }
-}
-
+//Redux Form
+import { Field, reduxForm } from 'redux-form';
+import validate from '../../Validate/SignInValidate';
+//End Redux Form
 const styles = StyleSheet.create({
     content: {
-        margin: 20,
-        marginTop: 150,
+        margin: 15,
+        marginTop: 130,
     },
     viewUsernameInput: {
         marginBottom: 10,
@@ -96,9 +28,101 @@ const styles = StyleSheet.create({
     }
 })
 
+//Style
+const {
+    content, input,
+    viewUsernameInput, viewPasswordInput
+} = styles;
+
+const renderUsernameField = field => (
+    <View style = {viewUsernameInput}>
+        <Item rounded>
+            <Input
+                {...field.input}
+                style={StyleSheet.flatten(input)}
+                placeholder="Enter your username"
+            />
+
+        </Item>
+        <View style = {{alignItems : 'center'}}>
+            {field.meta.touched && field.meta.error && <Text style={{ color: 'red' }}>{field.meta.error}</Text>}
+        </View>
+    </View>
+)
+
+const renderPasswordField = field => (
+    <View style={viewPasswordInput}>
+        <Item rounded>
+            <Input
+                {...field.input}
+                style={StyleSheet.flatten(input)}
+                placeholder="Enter your password"
+                secureTextEntry={true}
+            />
+        </Item>
+        <View style = {{alignItems : 'center'}}>
+            {field.meta.touched && field.meta.error && <Text style={{ color: 'red' }}>{field.meta.error}</Text>}
+        </View>
+    </View>
+)
+
+class SignIn extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    signIn(data) {
+        let url = "http://webbase.com.vn/ceramic/customer-api/sign-in";
+        this.props.thunkSignIn(url, data, this.props.navigation);
+    }
+    render() {
+        //Redux
+        const { isLoading, error } = this.props.signIn;
+
+        //Redux Form
+        const { handleSubmit, reset, pristine, invalid, values } = this.props;
+        return (
+            <Content style={StyleSheet.flatten(content)}>
+                <Field name="username" component={renderUsernameField} />
+                <Field name="password" component={renderPasswordField} />
+                {
+                    isLoading ?
+                        <Button
+                            block
+                            rounded
+                            outline
+                            primary
+                            bordered
+                            disabled
+                        >
+                            <Text>Loading&nbsp;&nbsp;</Text>
+                            <Spinner color='blue' />
+                        </Button>
+                        :
+                        <Button
+                            block
+                            rounded
+                            outline
+                            primary
+                            bordered
+                            onPress = { handleSubmit(this.signIn.bind(this)) }
+                            disabled = {pristine || invalid}
+                        >
+                            <Text>Sign In Now</Text>
+                        </Button>
+                }
+            </Content>
+        )
+    }
+}
 function mapStateToProps(state) {
     return {
         signIn: state.signIn
     }
 }
-export default connect(mapStateToProps, actionCreators)(SignIn);
+
+//Have form and validate. Other is failed
+export default reduxForm({
+    form: 'signIn',
+    validate
+})( connect(mapStateToProps, actionCreators)(SignIn) )
