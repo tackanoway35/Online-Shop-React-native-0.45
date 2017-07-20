@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Dimentions, Image, TouchableOpacity, FlatList } from 'react-native';
+import { View, StyleSheet, Dimensions, Image, TouchableOpacity, FlatList } from 'react-native';
 import {
     Container,
     Content,
@@ -19,9 +19,13 @@ import { FormattedNumber } from 'react-native-globalize';
 
 import { getApi } from '../../../Services/Api/getApi';
 
+//Redux
+import { connect } from 'react-redux';
+import * as actionCreators from '../../../Redux/actionCreators';
+
 const server = "http://webbase.com.vn/ceramic";
 
-export default class ListProduct extends Component {
+class ListProduct extends Component {
     static navigationOptions = ({ navigation }) => ({
         header: (
             <Header>
@@ -50,11 +54,7 @@ export default class ListProduct extends Component {
             refreshing: false,
             productsByCategory: []
         }
-
-
     }
-
-    _keyExtractor = (item, index) => item.id;
 
     componentDidMount() {
         //State param navigation
@@ -69,10 +69,33 @@ export default class ListProduct extends Component {
             .catch(e => console.log(e))
     }
 
+    loadMoreProduct() {
+        if (this.state.productsByCategory.length > 0) {
+            const { category } = this.props.navigation.state.params;
+            let newPage = this.state.page + 1;
+            let url = 'http://webbase.com.vn/ceramic/product-api/get-product-by-category/' + category.id + '?page=' + newPage;
+            getApi(url)
+                .then(res => {
+                    this.setState({
+                        productsByCategory: this.state.productsByCategory.concat(res),
+                        page: newPage
+                    })
+                })
+                .catch(e => console.log(e))
+        }
+    }
+
+    async goToProductDetail(productId, productTitle) {
+        await this.props.thunkGetTopProductDetail(productId);
+        this.props.navigation.navigate("ProductDetail", { productTitle });
+    }
+
+    _keyExtractor = (item, index) => item.id;
+
     render() {
         //Style
         const {
-            container, wrapper, title, productPrice,
+            container, wrapper, title, productPrice, wrapperFlatList,
             textTitle, content, imageProduct,
             information, lastInformation, image,
             txtName, txtPrice, txtMaterial, txtColor, txtShowDetail
@@ -90,40 +113,40 @@ export default class ListProduct extends Component {
                         </View>
                         {/*End title*/}
 
-                        <FlatList
-                            onEndReachedThreshold={50}
-                            onEndReached={() => {
-                                alert("Flat list on end reach")
-                            }}
-                            data={this.state.productsByCategory}
-                            renderItem={({ item }) => (
-                                <View style={content}>
-                                    <View style={imageProduct}>
-                                        <Image style={image} source={{ uri: `${server}${item.image}` }} />
-                                    </View>
-                                    <View style={information}>
-                                        <Text style={StyleSheet.flatten(txtName)}>{item.title}</Text>
-                                        <View style={productPrice}>
-                                            <FormattedNumber
-                                                style={txtPrice}
-                                                value={item.price}
-                                            />
-                                            <Text style={StyleSheet.flatten(txtPrice)}>&nbsp;VNĐ</Text>
+                        <View style = {wrapperFlatList}>
+                            <FlatList
+                                onEndReachedThreshold={0.3}
+                                onEndReached={() => this.loadMoreProduct()}
+                                data={this.state.productsByCategory}
+                                renderItem={({ item }) => (
+                                    <View style={content}>
+                                        <View style={imageProduct}>
+                                            <Image style={image} source={{ uri: `${server}${item.image}` }} />
                                         </View>
+                                        <View style={information}>
+                                            <Text style={StyleSheet.flatten(txtName)}>{item.title}</Text>
+                                            <View style={productPrice}>
+                                                <FormattedNumber
+                                                    style={txtPrice}
+                                                    value={item.price}
+                                                />
+                                                <Text style={StyleSheet.flatten(txtPrice)}>&nbsp;VNĐ</Text>
+                                            </View>
 
-                                        <Text style={StyleSheet.flatten(txtMaterial)}>{item.brand}</Text>
-                                        <View style={lastInformation}>
-                                            <Text style={StyleSheet.flatten(txtColor)}>Color </Text>
-                                            <View style={{ backgroundColor: 'red', height: 16, width: 16, borderRadius: 8 }}></View>
-                                            <TouchableOpacity>
-                                                <Text style={StyleSheet.flatten(txtShowDetail)}>SHOW DETAILS</Text>
-                                            </TouchableOpacity>
+                                            <View style={lastInformation}>
+                                                <Text style={StyleSheet.flatten(txtMaterial)}>{item.brand}</Text>
+                                                <TouchableOpacity
+                                                    onPress={() => this.goToProductDetail(item.id, item.title)}
+                                                >
+                                                    <Text style={StyleSheet.flatten(txtShowDetail)}>SHOW DETAILS</Text>
+                                                </TouchableOpacity>
+                                            </View>
                                         </View>
                                     </View>
-                                </View>
-                            )}
-                            keyExtractor={this._keyExtractor}
-                        />
+                                )}
+                                keyExtractor={this._keyExtractor}
+                            />
+                        </View>
                     </View>
                 </Content>
             </Container>
@@ -140,9 +163,14 @@ var styles = StyleSheet.create({
         margin: 8,
         backgroundColor: '#fff'
     },
+    wrapperFlatList : {
+        flex : 1,
+        height: 430
+    },
+
     title: {
         justifyContent: 'center',
-        marginBottom: 10
+        marginBottom: 5
     },
     textTitle: {
         textAlign: 'center',
@@ -196,3 +224,5 @@ var styles = StyleSheet.create({
         color: 'red'
     }
 })
+
+export default connect(null, actionCreators)(ListProduct)

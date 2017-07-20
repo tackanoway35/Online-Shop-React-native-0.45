@@ -1,6 +1,6 @@
 import React from "react";
 // import { StatusBar } from "react-native";
-import { View, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Alert } from 'react-native';
 import { FormattedNumber } from 'react-native-globalize';
 import { connect } from 'react-redux';
 import * as actionCreators from '../../../Redux/actionCreators';
@@ -28,7 +28,24 @@ import global from '../../../Services/global';
 class Cart extends React.Component {
   deleteThisProduct(cartId) {
     //Call redux thunk to delete from cart
-    this.props.thunkDeleteFromCart(cartId);
+    Alert.alert(
+      'Are you sure delete this product from your cart',
+      null,
+      [
+        {
+          text : 'Cancel', onPress : () => {}, style : 'cancel'
+        },
+        {
+          text : 'Delete', onPress : () => {
+            this.props.thunkDeleteFromCart(cartId);
+          }
+        }
+      ],
+      {
+        cancelable: false
+      }
+    )
+    
   }
 
   increaseQuantityProduct(cartId) {
@@ -44,6 +61,8 @@ class Cart extends React.Component {
   render() {
     //Total price cart
     const { cart } = this.props;
+    console.log("Cart after dispatch");
+    console.log(cart);
     var totalCartPrice = 0;
     if (cart.length > 0) {
       const arrTotalPrice = cart.map(e => {

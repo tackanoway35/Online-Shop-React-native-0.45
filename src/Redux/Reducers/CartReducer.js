@@ -8,7 +8,7 @@ export default cartReducer = (state = DEFAULT_STATE, action) => {
             return state;
 
         case "ADD_TO_CART":
-            return action.product.concat(state)
+            return action.newCart;
         case "DELETE_FROM_CART":
             return state.filter((cart, index) => index != action.cartId)
         case "INCREASE_QUANTITY_CART":

@@ -157,10 +157,10 @@ export function acDeleteFromCart(cartId) {
     }
 }
 
-export function acAddToCart(product) {
+export function acAddToCart(newCart) {
     return {
         type: "ADD_TO_CART",
-        product: product
+        newCart
     }
 }
 
@@ -361,12 +361,38 @@ export function thunkDeleteFromCart(cartId) {
 
 export function thunkAddToCart(product) {
     return (dispatch, getState) => {
+        var dem = 0;
         const { cart } = getState();
-        const newCart = product.concat(cart);
+        for(var i in cart)
+        {
+            if(cart[i].product.id == product[0].product.id)
+            {
+                cart[i].quantity++;
+                dem++;
+                cartId = i;
+                break;
+            }
+        }
+
+        if(dem == 0) //Add new
+        {
+            var newCart = product.concat(cart);
+        }else if(dem > 0) //Update quantity
+        {
+            var newCart = cart;
+        }
+         
         saveCart(newCart)
             .then(response => {
-                alert("Add to cart successfull");
-                dispatch(acAddToCart(product))
+                if(dem == 0)
+                {
+                    dispatch(acAddToCart(newCart));
+                    alert("Add to cart successfull");
+                }else if(dem > 0)
+                {
+                    dispatch(acAddToCart(newCart));
+                    alert("Product already exits in your cart. Quantity increased by 1");
+                }
             })
             .catch(e => {
                 console.log(e);

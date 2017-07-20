@@ -1,6 +1,6 @@
 
 import React from "react";
-import { AppRegistry, Alert } from "react-native";
+import { AppRegistry, Alert, StyleSheet, View } from "react-native";
 import {
   Text,
   Container,
@@ -31,10 +31,27 @@ export default class ChangeInfo extends React.Component {
           </Body>
           <Right />
         </Header>
-        <Content>
-          <Text>Hello world</Text>
+        <Content style={StyleSheet.flatten(wrapper)}>
+          <View style={ container }>
+            <View style = { content }>
+              
+            </View>
+          </View>
         </Content>
       </Container>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#D6D6D6'
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    margin: 10
+  }
+
+})
